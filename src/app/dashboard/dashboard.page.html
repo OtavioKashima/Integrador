@@ -10,4 +10,16 @@
       <ion-title size="large">dashboard</ion-title>
     </ion-toolbar>
   </ion-header>
+  
+  <ion-datetime
+    display-format="YYYY/MM/DD"
+  ></ion-datetime>
+  <!-- <ion-button (click)="historicoDia()">Default</ion-button> -->
+  <div *ngFor="let i of dados">
+      <p>Temperatura: {{i["temperatura"]}}</p>
+      <p>Umidade: {{i["umidade"]}}</p>
+      <p>Registro: {{i["timestamp"]}}</p>
+  </div>
+
+
 </ion-content>

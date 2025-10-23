@@ -7,12 +7,16 @@ import { Observable } from 'rxjs';
 })
 export class Api {
 
-  private apiUrl: string = '/api/leitura';
+  private apiUrl: string = 'https://esp32-mongodb-idev3.onrender.com';
   
   constructor(private Http:HttpClient) {}
 
   getSensores() :Observable<any[]> {
-    return this.Http.get<any[]>(this.apiUrl);
+    return this.Http.get<any[]>(this.apiUrl + '/api/leituras/gA5kPz7RqL2mS8vBwT9E');
+  }
+
+  getHistorico(): Observable<any[]> {
+    return this.Http.get<any[]>(this.apiUrl + '/api/historico-dia/gA5kPz7RqL2mS8vBwT9E?data={$data}');
   }
 
 }
