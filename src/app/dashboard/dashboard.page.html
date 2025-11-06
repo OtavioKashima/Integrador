@@ -12,14 +12,29 @@
   </ion-header>
   
   <ion-datetime
-    display-format="YYYY/MM/DD"
+  presentation="date"
+  (ionChange)="onDataChange($event)"
   ></ion-datetime>
-  <!-- <ion-button (click)="historicoDia()">Default</ion-button> -->
-  <div *ngFor="let i of dados">
-      <p>Temperatura: {{i["temperatura"]}}</p>
-      <p>Umidade: {{i["umidade"]}}</p>
-      <p>Registro: {{i["timestamp"]}}</p>
+  <div *ngIf="dados.length === 0" class="ion-text-center ion-padding">
+    <p>Nenhum registro encontrado para a data selecionada.</p>
   </div>
+  
+
+  <ion-card *ngFor="let i of dados">
+    <ion-card-header>
+      <ion-card-title>Registro: {{i["timestamp"]}}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item>
+          <ion-label>Umidade: {{i["umidade"]}}</ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-label>Temperatura: {{i["temperatura"]}}</ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
 
 
 </ion-content>
