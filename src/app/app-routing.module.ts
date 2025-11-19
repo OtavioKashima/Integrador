@@ -11,6 +11,14 @@ const routes: Routes = [
     path: 'dashboard',
     loadChildren: () => import('./dashboard/dashboard.module').then( m => m.DashboardPageModule)
   },
+  {
+    path: 'tabs',
+    loadChildren: () => import('./tabs/tabs.module').then( m => m.TabsPageModule)
+  },
+  {
+    path: 'graficos',
+    loadChildren: () => import('./graficos/graficos.module').then( m => m.GraficosPageModule)
+  },
 ];
 
 @NgModule({
