@@ -1,5 +1,4 @@
-// Caminho: src/app/dashboard/dashboard.page.ts
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { Api } from '../api';
 import { finalize } from 'rxjs/operators';
 
@@ -13,128 +12,133 @@ export class DashboardPage implements OnInit, OnDestroy {
 
   constructor(
     private apiService: Api,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
   ) { }
 
-  // Voltamos a ter o 'dados' (eu tinha errado antes, desculpe)
-  dados: any[] = [];
-  hdados: any[] = [];
+  dados: any[] = [];    // Dados para o Card "Ao Vivo"
+  hdados: any[] = [];   // Dados para a Lista "Histórico"
+  
+  dataSelecionada: string = new Date().toISOString();
+  ultimaAtualizacao: string = '--:--:--';
+
   private readonly POLLING_INTERVAL_MS = 5000;
   private timeoutId: any = null;
   private isPollingActive: boolean = false;
 
+  // Converte data BR ("23/10/2025, 16:08:03") para Timestamp numérico
+  private parseDataBR(dataStr: string): number {
+    try {
+      if (!dataStr) return 0;
+      // Se já for ISO
+      if (dataStr.includes('-') && !dataStr.includes('/')) return new Date(dataStr).getTime();
+      
+      // Se for BR
+      const partes = dataStr.split(', ');
+      if (partes.length < 2) return 0;
+      const pData = partes[0].split('/');
+      const pHora = partes[1].split(':');
+      
+      return new Date(
+        parseInt(pData[2]), parseInt(pData[1]) - 1, parseInt(pData[0]),
+        parseInt(pHora[0]), parseInt(pHora[1]), parseInt(pHora[2] || '0')
+      ).getTime();
+    } catch (e) { return 0; }
+  }
+
   ngOnInit() {
-    const dataDeHoje = new Date().toISOString();
-    this.buscarDadosDoDia(dataDeHoje);
+    // Define a data selecionada como HOJE (corrigindo fuso horário)
+    const hoje = new Date();
+    const offset = hoje.getTimezoneOffset() * 60000;
+    this.dataSelecionada = new Date(hoje.getTime() - offset).toISOString();
+
+    // Inicia o processo
     this.isPollingActive = true;
     this.startPolling();
   }
 
   startPolling() {
-    if (!this.isPollingActive) {
-      return;
-    }
+    if (!this.isPollingActive) return;
 
     this.apiService.getSensores()
-      .pipe(
-        finalize(() => {
+      .pipe(finalize(() => {
           if (this.isPollingActive) {
-            this.timeoutId = setTimeout(() => {
-              this.startPolling();
-            }, this.POLLING_INTERVAL_MS);
+            this.timeoutId = setTimeout(() => this.startPolling(), this.POLLING_INTERVAL_MS);
           }
-        })
-      )
+      }))
       .subscribe({
         next: (data: any[]) => {
-          if (!data || data.length === 0) {
-            this.dados = [];
+          this.ngZone.run(() => {
+            if (!data || data.length === 0) return;
+
+            // 1. ORDENA TUDO (Mais recente primeiro)
+            const todosOrdenados = [...data].sort((a, b) => {
+              return this.parseDataBR(b.timestamp) - this.parseDataBR(a.timestamp);
+            });
+
+            // 2. ATUALIZA AS DUAS VARIÁVEIS
+            this.atualizarListas(todosOrdenados);
+
+            // Atualiza relógio de debug
+            const agora = new Date();
+            this.ultimaAtualizacao = `${agora.getHours()}:${agora.getMinutes()}:${agora.getSeconds()}`;
             this.cdr.detectChanges();
-            return;
-          }
-
-          // --- INÍCIO DA SOLUÇÃO (ORDENAÇÃO) ---
-
-          // 1. Criamos uma cópia do array e o ordenamos
-          // Esta é a parte que garante que o mais novo fique no topo
-          const dadosOrdenados = [...data].sort((a, b) => {
-            try {
-              // Converte os timestamps em números para comparação
-              const timeA = new Date(a.timestamp).getTime();
-              const timeB = new Date(b.timestamp).getTime();
-
-              // Se algum timestamp for inválido, não mexe
-              if (isNaN(timeA) || isNaN(timeB)) {
-                return 0;
-              }
-
-              // b - a = Ordem Decrescente (Mais novo primeiro)
-              return timeB - timeA;
-
-            } catch (e) {
-              return 0; // Em caso de erro, não mexe
-            }
           });
-
-          // --- FIM DA SOLUÇÃO ---
-
-          console.log('Dados ordenados. Item no topo:', dadosOrdenados[0]);
-
-          this.dados = dadosOrdenados;
-
-          this.cdr.detectChanges();
         },
-        error: (err) => {
-          console.error('Erro no polling (live), mas vamos tentar de novo...', err);
-        }
+        error: (err) => console.error('Erro polling', err)
       });
   }
 
-  ngOnDestroy() {
-    console.log('Saindo da página, parando o polling.');
-    this.isPollingActive = false;
-    if (this.timeoutId) {
-      clearTimeout(this.timeoutId);
-    }
+  // --- NOVA FUNÇÃO CENTRALIZADA ---
+  // Recebe os dados novos e distribui para 'dados' e 'hdados'
+  atualizarListas(todosDados: any[]) {
+    
+    // A. Atualiza o card "Ao Vivo" (sempre o primeiro item da lista geral)
+    this.dados = todosDados;
+
+    // B. Atualiza a lista "Histórico" filtrando pela data que está no calendário
+    const diaSelecionado = this.dataSelecionada.split('T')[0]; // ex: "2025-10-23"
+
+    const historicoFiltrado = todosDados.filter(item => {
+      const ms = this.parseDataBR(item.timestamp);
+      if (ms === 0) return false;
+      const diaItem = new Date(ms).toISOString().split('T')[0];
+      return diaItem === diaSelecionado;
+    });
+
+    // Aqui está o segredo: Atualizamos o hdados AUTOMATICAMENTE
+    this.hdados = historicoFiltrado;
+    
+    console.log(`Atualizado! Ao Vivo: ${this.dados[0].timestamp} | Lista Histórico: ${this.hdados.length} itens`);
   }
 
-  // 2. FUNÇÃO ACIONADA PELO CALENDÁRIO
+  // Quando o usuário muda o calendário
   onDataChange(event: any) {
-    const dataISO = event.detail.value;
-    this.buscarDadosDoDia(dataISO);
+    this.dataSelecionada = event.detail.value;
+    
+    // Reutilizamos os dados que já temos na memória em 'this.dados'
+    // para não precisar ir na API de novo
+    if (this.dados.length > 0) {
+      this.atualizarListas(this.dados);
+    } else {
+      // Se ainda não tem dados (primeira carga), chama o polling ou busca manual
+      this.buscarDadosManualmente();
+    }
   }
 
-  // 3. FUNÇÃO DE BUSCA DO HISTÓRICO
-  buscarDadosDoDia(dataISO: string): any {
-    const dataFormatada = dataISO.split('T')[0];
-    console.log('Buscando dados (Histórico) para:', dataFormatada);
-    this.hdados = [];
-    this.apiService.getHistorico(dataFormatada).subscribe({
-      next: (data: any[]) => {
-        console.log('Dados (Histórico) recebidos:', data);
-
-        // APLICAMOS A MESMA LÓGICA AO HISTÓRICO
-        // (Assim o item das 23:00 aparece antes do item das 08:00)
-        const historicoOrdenado = [...data].sort((a, b) => {
-          try {
-            const timeA = new Date(a.timestamp).getTime();
-            const timeB = new Date(b.timestamp).getTime();
-            if (isNaN(timeA) || isNaN(timeB)) return 0;
-            return timeB - timeA; // Mais novo primeiro
-          } catch (e) {
-            return 0;
-          }
-        });
-
-        this.hdados = historicoOrdenado;
+  // Fallback caso precise buscar manualmente (ex: dia muito antigo fora da lista principal)
+  buscarDadosManualmente() {
+    const dia = this.dataSelecionada.split('T')[0];
+    this.apiService.getHistorico(dia).subscribe(data => {
+        // Ordena e joga no hdados
+        const ordenados = [...data].sort((a, b) => this.parseDataBR(b.timestamp) - this.parseDataBR(a.timestamp));
+        this.hdados = ordenados;
         this.cdr.detectChanges();
-      }, error: (err) => {
-        console.log(err);
-        if (err.status === 404) {
-          console.log('Nenhum dado encontrado para este dia.');
-        }
-      }
-    }
-    )
+    });
+  }
+
+  ngOnDestroy() {
+    this.isPollingActive = false;
+    if (this.timeoutId) clearTimeout(this.timeoutId);
   }
 }

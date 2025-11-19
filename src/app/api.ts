@@ -1,7 +1,4 @@
-// Caminho: src/app/api.ts
-
 import { Injectable } from '@angular/core';
-// 1. HttpClient é o único import necessário agora
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -10,29 +7,27 @@ import { Observable } from 'rxjs';
 })
 export class Api {
 
+  // Sua URL base
   private apiUrl: string = 'https://esp32-mongodb-idev3.onrender.com';
+  
+  constructor(private Http: HttpClient) {}
 
-  constructor(private Http: HttpClient) { }
-
+  // FUNÇÃO 1: PEGAR DADOS (Com Cache Buster)
   getSensores(): Observable<any[]> {
-    // 2. Removemos os 'headers'
-
-    // "CACHE BUSTER": Cria um parâmetro de tempo único
+    // Cria um número único (ex: 1762455508812)
     const timestamp = new Date().getTime();
 
-    // 3. Fazemos a chamada SEM os headers, mas MANTENDO o cache buster
+    // Adicionamos '?_t=' + timestamp na URL
+    // O servidor ignora isso, mas o navegador acha que é uma página nova e baixa tudo de novo.
     return this.Http.get<any[]>(
       `${this.apiUrl}/api/leituras/gA5kPz7RqL2mS8vBwT9E?_t=${timestamp}`
     );
   }
 
+  // FUNÇÃO 2: PEGAR HISTÓRICO (Com Cache Buster)
   getHistorico(data: string): Observable<any[]> {
-    // 4. Removemos os 'headers' daqui também
-
-    // "CACHE BUSTER"
     const timestamp = new Date().getTime();
 
-    // 5. Fazemos a chamada SEM os headers, mas MANTENDO o cache buster
     return this.Http.get<any[]>(
       `${this.apiUrl}/api/historico-dia/gA5kPz7RqL2mS8vBwT9E?data=${data}&_t=${timestamp}`
     );
