@@ -1,60 +1,71 @@
-<ion-header [translucent]="true">
-  <ion-toolbar color="primary">
-    <ion-title>Dashboard Água</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>
+      <ion-icon name="water" style="vertical-align: middle;"></ion-icon>
+      Monitor Água
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content>
 
   <ion-card class="card-aovivo">
     <ion-card-header>
-      <ion-card-subtitle>Monitoramento em Tempo Real</ion-card-subtitle>
-      
-      <p style="font-size: 0.8em; color: green;">
-         Sync: {{ ultimaAtualizacao }}
-      </p>
-      <ion-card-title>Agora</ion-card-title>
+      <ion-card-subtitle>Status Atual</ion-card-subtitle>
+      <ion-card-title>Caixa d'Água</ion-card-title>
     </ion-card-header>
     <ion-card-content>
       <div *ngIf="dados.length > 0; else loading">
-        <h1 style="font-size: 3em; text-align: center;">
-          {{ dados[0].nivel || '0' }}%
-        </h1>
-        <p style="text-align: center;">
-          Última atualização: {{ dados[0].timestamp }}
-        </p>
+        
+        <div class="destaque-valor">
+          {{ dados[0].nivel || '0' }}<span style="font-size: 1.5rem">%</span>
+        </div>
+        
+        <div class="info-extra">
+          <ion-icon name="time-outline"></ion-icon> 
+          Atualizado às {{ dados[0].timestamp.split(' ')[1] || dados[0].timestamp }}
+        </div>
+
       </div>
       <ng-template #loading>
-        <p>Aguardando dados do sensor...</p>
+        <div class="ion-text-center">
+          <ion-spinner color="light"></ion-spinner>
+          <p>Conectando ao sensor...</p>
+        </div>
       </ng-template>
     </ion-card-content>
   </ion-card>
 
-  <ion-item-divider sticky>
-    <ion-label>Histórico</ion-label>
-  </ion-item-divider>
+  <div class="section-title">Histórico de Leitura</div>
 
   <ion-datetime
     presentation="date"
     [value]="dataSelecionada" 
     (ionChange)="onDataChange($event)"
-    style="margin: auto; border-radius: 10px;"
   ></ion-datetime>
 
   <div *ngIf="hdados.length === 0" class="ion-text-center ion-padding">
-    <ion-text color="medium">
-      <p>Nenhum registro encontrado nesta data.</p>
-    </ion-text>
+    <ion-icon name="calendar-outline" style="font-size: 3rem; color: #ccc;"></ion-icon>
+    <p style="color: #999;">Sem dados para esta data.</p>
   </div>
 
-  <ion-list>
-    <ion-item *ngFor="let item of hdados">
+  <ion-list class="lista-historico" lines="none">
+    
+    <ion-item *ngFor="let item of hdados" class="item-historico">
+      <ion-icon name="water-outline" slot="start" color="primary"></ion-icon>
+      
       <ion-label>
-        <h3>{{ item.timestamp }}</h3>
-        <p>Umidade: {{ item.nivel || item.umidade }} | Temperatura: {{ item.volume || item.temperatura }}</p>
+        <h3>{{ item.timestamp.split(' ')[1] || item.timestamp }}</h3> <p>
+          Temp: <strong>{{ item.temperatura }}°C</strong> | 
+          Umid: <strong>{{ item.umidade }}%</strong>
+        </p>
       </ion-label>
-      <ion-badge slot="end" color="secondary">{{ item.nivel || '0' }}%</ion-badge>
+
+      <ion-badge slot="end">{{ item.nivel || '0' }}%</ion-badge>
     </ion-item>
+
   </ion-list>
+
+  <div style="height: 50px;"></div>
 
 </ion-content>
