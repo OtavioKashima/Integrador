@@ -55,10 +55,8 @@
       <ion-icon name="water-outline" slot="start" color="primary"></ion-icon>
       
       <ion-label>
-        <h3>{{ item.timestamp.split(' ')[1] || item.timestamp }}</h3> <p>
-          Temp: <strong>{{ item.tubidez }}°C</strong> | 
-          Umid: <strong>{{ item.ph }}%</strong>
-        </p>
+        <h3>{{ item.timestamp }}</h3>
+        <p>Umidade: {{ item.nivel || item.umidade }} | Temperatura: {{ item.volume || item.temperatura }}</p>
       </ion-label>
 
       <ion-badge slot="end">{{ item.nivel || '0' }}%</ion-badge>
