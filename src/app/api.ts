@@ -20,7 +20,7 @@ export class Api {
     // Adicionamos '?_t=' + timestamp na URL
     // O servidor ignora isso, mas o navegador acha que é uma página nova e baixa tudo de novo.
     return this.Http.get<any[]>(
-      `${this.apiUrl}/api/leituras/gA5kPz7RqL2mS8vBwT9E?_t=${timestamp}`
+      `${this.apiUrl}/api/leituras/n22cr968d42tau?_t=${timestamp}`
     );
   }
 
@@ -29,7 +29,7 @@ export class Api {
     const timestamp = new Date().getTime();
 
     return this.Http.get<any[]>(
-      `${this.apiUrl}/api/historico-dia/gA5kPz7RqL2mS8vBwT9E?data=${data}&_t=${timestamp}`
+      `${this.apiUrl}/api/historico-dia/n22cr968d42tau?data=${data}&_t=${timestamp}`
     );
   }
 }

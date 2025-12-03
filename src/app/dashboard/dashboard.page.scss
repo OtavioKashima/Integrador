@@ -1,3 +1,120 @@
 ion-item {
     --padding-start: 0;
   }
+
+  // dashboard.page.scss
+
+// 1. Fundo geral da página (Cinza bem claro para modernidade)
+ion-content {
+  --background: #f4f6f8;
+}
+
+// 2. Toolbar (Cabeçalho)
+ion-toolbar {
+  --background: #ffffff;
+  --color: #1c1c1c;
+  --border-style: none; // Remove a linha feia embaixo
+  
+  ion-title {
+    font-weight: 700; // Negrito moderno
+    font-size: 1.2rem;
+    color: #0054e9; // Azul Ionic
+  }
+}
+
+// 3. Card "Ao Vivo" (O Destaque)
+.card-aovivo {
+  margin: 20px;
+  border-radius: 24px; // Bordas bem arredondadas
+  background: linear-gradient(135deg, #0061ff 0%, #60efff 100%); // Gradiente Azul
+  box-shadow: 0 10px 25px rgba(0, 97, 255, 0.3); // Sombra azulada brilhante
+  color: white;
+  border: none;
+
+  ion-card-subtitle {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  ion-card-title {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 5px;
+  }
+
+  .destaque-valor {
+    font-size: 4rem; // Tamanho gigante para o %
+    font-weight: 800;
+    text-align: center;
+    margin: 10px 0;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+
+  .info-extra {
+    text-align: center;
+    font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.2); // Fundo translúcido
+    padding: 8px;
+    border-radius: 12px;
+    margin-top: 10px;
+  }
+}
+
+// 4. Divisor de Seção
+.section-title {
+  padding: 20px 20px 10px 20px;
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+// 5. O Calendário
+ion-datetime {
+  margin: 0 auto 20px auto;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  background: white;
+  max-width: 90%;
+}
+
+// 6. Lista de Histórico (Cards Individuais)
+.lista-historico {
+  background: transparent;
+  padding: 0 10px; // Espaço lateral
+}
+
+.item-historico {
+  --background: #ffffff;
+  --border-radius: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.03); // Sombra muito suave
+  
+  // Uma borda colorida na esquerda para dar estilo
+  border-left: 5px solid #0061ff; 
+
+  ion-label {
+    h3 {
+      font-weight: 700;
+      color: #333;
+      font-size: 1.1rem;
+    }
+    p {
+      color: #888;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+  }
+
+  ion-badge {
+    --background: #e6f0ff; // Azul bem clarinho
+    --color: #0061ff; // Texto azul forte
+    font-size: 0.9rem;
+    padding: 6px 10px;
+    border-radius: 8px;
+  }
+}
