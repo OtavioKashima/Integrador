@@ -72,14 +72,53 @@ ion-toolbar {
   letter-spacing: 0.5px;
 }
 
-// 5. O Calendário
+
+
+// 5. O Calendário (ATUALIZADO PARA CORRIGIR O BUG DO ANDROID)
 ion-datetime {
   margin: 0 auto 20px auto;
   border-radius: 16px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-  background: white;
   max-width: 90%;
+  
+  // --- FORÇA O TEMA CLARO ---
+  // Define o fundo como branco absoluto
+  --background: #ffffff;
+  background: #ffffff;
+  
+  // Define a cor do texto padrão como preto absoluto
+  --ion-text-color: #000000;
+  color: #000000;
+
+  // Garante que o título e os controles fiquem pretos
+  --title-color: #000000;
+  
+  // CORREÇÃO CRÍTICA PARA OS DIAS DO MÊS:
+  // Força os botões dos dias a serem pretos
+  ::part(calendar-day) {
+    color: #000000;
+  }
+  
+  // Dias desabilitados ou de outro mês (cinza claro)
+  ::part(calendar-day disabled) {
+    color: #cccccc;
+  }
+
+  // O dia selecionado (mantém o azul e texto branco)
+  ::part(calendar-day active) {
+    background-color: var(--ion-color-primary, #3880ff);
+    color: #ffffff;
+  }
+  
+  // Corrigir setas de navegação (meses)
+  ion-buttons {
+    ion-button {
+      color: #000000 !important;
+    }
+  }
 }
+
+
 
 // 6. Lista de Histórico (Cards Individuais)
 .lista-historico {

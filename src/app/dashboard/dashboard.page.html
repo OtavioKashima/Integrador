@@ -39,10 +39,11 @@
   <div class="section-title">Histórico de Leitura</div>
 
   <ion-datetime
-    presentation="date"
-    [value]="dataSelecionada" 
-    (ionChange)="onDataChange($event)"
-  ></ion-datetime>
+  presentation="date"
+  [value]="dataSelecionada" 
+  (ionChange)="onDataChange($event)"
+  style="--background: white; --ion-text-color: black; color: black;" 
+></ion-datetime>
 
   <div *ngIf="hdados.length === 0" class="ion-text-center ion-padding">
     <ion-icon name="calendar-outline" style="font-size: 3rem; color: #ccc;"></ion-icon>
